@@ -1,0 +1,16 @@
+{
+  "name": "GreenLight - Deploy on Success",
+  "description": "Automated deployment workflow that runs tests, builds, and deploys when all checks pass. Includes automatic rollback on failure and success notifications.",
+  "iconName": "octicon rocket",
+  "categories": [
+    "Deployment",
+    "Continuous Integration",
+    "Continuous Deployment"
+  ],
+  "filePatterns": [
+    "Dockerfile",
+    ".*\\.ya?ml$",
+    "package.*",
+    "go.mod"
+  ]
+}
