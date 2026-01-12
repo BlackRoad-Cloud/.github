@@ -1,0 +1,16 @@
+{
+  "name": "YellowLight - Manual Approval Required",
+  "description": "Deployment workflow requiring manual approval before proceeding. Includes pre-deployment validation, approval gates, and post-approval actions for staging and production environments.",
+  "iconName": "octicon clock",
+  "categories": [
+    "Deployment",
+    "Continuous Deployment"
+  ],
+  "filePatterns": [
+    "package.*",
+    "requirements.*",
+    "go.mod",
+    "pom.xml",
+    "Gemfile"
+  ]
+}

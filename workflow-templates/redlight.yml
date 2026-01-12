@@ -1,0 +1,66 @@
+name: RedLight - Block on Failure
+
+on:
+  pull_request:
+    branches: [ $default-branch ]
+  push:
+    branches: [ $default-branch ]
+
+jobs:
+  validate:
+    name: 🔴 RedLight - Quality Gates
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          # Add your test command here (e.g., npm test, pytest, mvn test)
+          # Test failures will automatically block the workflow
+
+      - name: Security scan
+        run: |
+          echo "Running security scan..."
+          # Add security scanning (e.g., trivy, snyk, bandit)
+
+      - name: Lint check
+        run: |
+          echo "Running linter..."
+          # Add linting command (e.g., eslint, flake8, golangci-lint)
+
+      - name: Code coverage check
+        run: |
+          echo "Checking code coverage..."
+          # Add coverage check (e.g., coverage report --fail-under=80)
+
+  block-on-failure:
+    name: 🚫 Block Deployment
+    runs-on: ubuntu-latest
+    needs: validate
+    if: failure()
+    
+    steps:
+      - name: Mark as RedLight
+        run: |
+          echo "🔴 REDLIGHT: Quality gates failed!"
+          echo "Deployment and merging are blocked."
+          exit 1
+
+      - name: Create failure notification
+        run: |
+          echo "⚠️  Critical checks failed. Review required."
+          # Add notification logic (e.g., Slack, email, GitHub issue)
+
+  success-gate:
+    name: ✅ Ready to Proceed
+    runs-on: ubuntu-latest
+    needs: validate
+    if: success()
+    
+    steps:
+      - name: All checks passed
+        run: |
+          echo "✅ All quality gates passed. Ready for next stage."
