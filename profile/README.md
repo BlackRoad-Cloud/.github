@@ -1,44 +1,31 @@
 <div align="center">
-  <h1>🛣️ BlackRoad OS</h1>
-  <p><strong>Your AI. Your Hardware. Your Rules.</strong></p>
+  <h1>☁️ BlackRoad Cloud</h1>
+  <p><strong>Infrastructure. Orchestration. Everywhere.</strong></p>
   <p>
-    <img src="https://img.shields.io/badge/Agents-30%2C000-FF1D6C?style=for-the-badge&logo=robot&logoColor=white"/>
-    <img src="https://img.shields.io/badge/Repos-1%2C825%2B-9C27B0?style=for-the-badge"/>
-    <img src="https://img.shields.io/badge/Orgs-17-2979FF?style=for-the-badge"/>
+    <img src="https://img.shields.io/badge/Cloudflare-75%2B%20Workers-FF1D6C?style=for-the-badge&logo=cloudflare&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Railway-14%20Projects-9C27B0?style=for-the-badge"/>
+    <img src="https://img.shields.io/badge/Terraform-IaC-2979FF?style=for-the-badge&logo=terraform&logoColor=white"/>
   </p>
 </div>
 
-## Overview
+## What Lives Here
 
-BlackRoad OS is the infrastructure backbone for AI-first companies — powering 30,000+ concurrent AI agents across edge, cloud, and on-premise hardware.
+Cloud infrastructure, orchestration, and multi-cloud deployment tooling for the BlackRoad platform.
 
-| Platform | Scale | Status |
-|----------|-------|--------|
-| AI Agents | 30,000 | ✅ Active |
-| Cloudflare Workers | 75+ | ✅ Active |
-| Raspberry Pi Fleet | 4 nodes | ✅ Active |
-| GitHub Actions | 50+ workflows | ✅ Active |
+## Infrastructure Overview
 
-## Core Systems
+| Platform | Scale | Purpose |
+|----------|-------|---------|
+| Cloudflare Workers | 75+ | Edge compute, routing, AI inference |
+| Cloudflare Pages | 15+ | Static frontends, docs |
+| Cloudflare R2 | 135 GB | LLM model storage |
+| Railway | 14 projects | Backend services |
+| DigitalOcean | 1 droplet | Primary VPS (159.65.43.12) |
+| Raspberry Pi | 4 nodes | Edge AI fleet |
 
-- **Tokenless Gateway** — All AI provider secrets live only here
-- **PS-SHA∞ Memory** — Hash-chained persistent AI memory  
-- **CECE Identity** — Portable AI identity across any provider
-- **30K Agent Mesh** — WebSocket + MQTT orchestration
+## Stack
 
-## Organizations
-
-| Org | Purpose |
-|-----|---------|
-| [BlackRoad-OS-Inc](https://github.com/BlackRoad-OS-Inc) | Core platform & gateway |
-| [BlackRoad-OS](https://github.com/BlackRoad-OS) | OS, web, docs, agents |
-| [BlackRoad-AI](https://github.com/BlackRoad-AI) | ML models & inference |
-| [BlackRoad-Cloud](https://github.com/BlackRoad-Cloud) | Infrastructure & K8s |
-| [BlackRoad-Security](https://github.com/BlackRoad-Security) | Security & compliance |
-
-## Brand
-
-Primary: `#FF1D6C` · Gradient: `#F5A623 → #FF1D6C → #9C27B0 → #2979FF`
+Kubernetes · Nomad · Terraform · Pulumi · Docker · ArgoCD · Flux · Traefik · Consul
 
 ---
-*© BlackRoad OS, Inc. All rights reserved. Proprietary — not open source.*
+*© BlackRoad OS, Inc. All rights reserved.*
