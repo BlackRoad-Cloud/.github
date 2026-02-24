@@ -1,31 +1,38 @@
 <div align="center">
-  <h1>☁️ BlackRoad Cloud</h1>
-  <p><strong>Infrastructure. Orchestration. Everywhere.</strong></p>
-  <p>
-    <img src="https://img.shields.io/badge/Cloudflare-75%2B%20Workers-FF1D6C?style=for-the-badge&logo=cloudflare&logoColor=white"/>
-    <img src="https://img.shields.io/badge/Railway-14%20Projects-9C27B0?style=for-the-badge"/>
-    <img src="https://img.shields.io/badge/Terraform-IaC-2979FF?style=for-the-badge&logo=terraform&logoColor=white"/>
-  </p>
+
+# ☁️ BlackRoad Cloud
+
+### Infrastructure Without Limits
+
+Kubernetes, Nomad, Terraform, and cloud-native tooling for teams that run everything.
+
+[![Platform](https://img.shields.io/badge/Platform-blackroad.io-FF1D6C?style=for-the-badge)](https://blackroad.io)
+[![Agents](https://img.shields.io/badge/AI_Agents-30%2C000-9C27B0?style=for-the-badge)](https://agents.blackroad.io)
+[![Cost](https://img.shields.io/badge/AI_Cost-%240-F5A623?style=for-the-badge)](https://blackroad.io)
+
 </div>
 
-## What Lives Here
+---
 
-Cloud infrastructure, orchestration, and multi-cloud deployment tooling for the BlackRoad platform.
+## 🎯 Focus Areas
 
-## Infrastructure Overview
+`Kubernetes` • `Terraform` • `Networking` • `Secrets`
 
-| Platform | Scale | Purpose |
-|----------|-------|---------|
-| Cloudflare Workers | 75+ | Edge compute, routing, AI inference |
-| Cloudflare Pages | 15+ | Static frontends, docs |
-| Cloudflare R2 | 135 GB | LLM model storage |
-| Railway | 14 projects | Backend services |
-| DigitalOcean | 1 droplet | Primary VPS (159.65.43.12) |
-| Raspberry Pi | 4 nodes | Edge AI fleet |
+## 🔗 Links
 
-## Stack
-
-Kubernetes · Nomad · Terraform · Pulumi · Docker · ArgoCD · Flux · Traefik · Consul
+| | |
+|---|---|
+| 🌐 **Website** | [blackroad-cloud.github.io](https://blackroad-cloud.github.io) |
+| 📖 **Docs** | [docs.blackroad.io](https://docs.blackroad.io) |
+| 💬 **Status** | [status.blackroad.io](https://status.blackroad.io) |
+| 🤖 **Agents** | [agents.blackroad.io](https://agents.blackroad.io) |
 
 ---
+
+<div align="center">
+
+**Part of [BlackRoad OS](https://blackroad.io)** — 30,000 AI Agents • 17 Organizations • 1,800+ Repos • $0 AI Cost
+
 *© BlackRoad OS, Inc. All rights reserved.*
+
+</div>
