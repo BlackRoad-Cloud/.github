@@ -219,7 +219,7 @@ When a user comments `@BlackRoadBot` on a GitHub issue or pull request, the bot 
 
 ## Layered Architecture of BlackRoad CLI v3
 
-The BlackRoad CLI v3 loads eight distinct layers of functionality:
+The BlackRoad CLI v3 loads six documented layers of functionality (Layers 3–8):
 
 | Layer | Name | Purpose |
 |---|---|---|
