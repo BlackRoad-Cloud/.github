@@ -372,20 +372,23 @@ jobs:
           echo "$FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: AI Code Analysis
+      - name: AI Code Analysis (Ollama local)
         id: ai_review
         run: |
-          # Call BlackRoad AI for code review
-          REVIEW=$(curl -s -X POST "${{ env.BLACKROAD_AGENT_API }}/review" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "repo": "${{ github.repository }}",
-              "pr_number": ${{ github.event.pull_request.number }},
-              "files": ${{ toJSON(steps.changed.outputs.files) }},
-              "test_result": "${{ needs.test-and-build.outputs.test_result }}",
-              "build_result": "${{ needs.test-and-build.outputs.build_result }}"
-            }' 2>/dev/null || echo "Review completed")
+          # Use local Ollama — no external provider needed
+          DEFAULT_MODEL="llama3.2"
+          DIFF_FILE=$(mktemp)
+          git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} \
+            -- ${{ steps.changed.outputs.files }} 2>/dev/null | head -200 > "$DIFF_FILE"
 
+          if command -v ollama &>/dev/null && ollama list 2>/dev/null | grep -q "^${DEFAULT_MODEL}"; then
+            REVIEW=$(printf 'Review this code diff briefly. List any bugs or issues:\n\n%s' "$(cat "$DIFF_FILE")" \
+              | ollama run "$DEFAULT_MODEL" 2>/dev/null | head -20 || echo "Review completed locally")
+          else
+            REVIEW="Local Ollama review pending — run ollama-setup workflow to enable local AI"
+          fi
+
+          rm -f "$DIFF_FILE"
           echo "AI Review: $REVIEW"
 
       - name: Post Review Comment

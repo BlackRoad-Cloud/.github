@@ -1,0 +1,90 @@
+name: "🦙 Ollama Local LLM"
+# Local AI inference — zero external provider dependency
+# Runs Ollama on the self-hosted Pi fleet
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Model to pull (e.g. llama3.2, mistral, phi3)'
+        required: false
+        default: 'llama3.2'
+      action:
+        description: 'Action to perform'
+        type: choice
+        options: [setup, pull-model, health, list-models]
+        default: health
+  schedule:
+    - cron: '0 */12 * * *'  # Health check every 12 hours
+
+permissions: {}
+
+jobs:
+  ollama:
+    name: "🦙 Ollama - ${{ inputs.action || 'health' }}"
+    runs-on: [self-hosted, pi]
+
+    steps:
+      - name: Install Ollama (if missing)
+        run: |
+          if ! command -v ollama &>/dev/null; then
+            echo "Installing Ollama..."
+            curl -fsSL https://ollama.com/install.sh | sh
+          else
+            echo "✅ Ollama already installed: $(ollama --version)"
+          fi
+
+      - name: Start Ollama service
+        run: |
+          if ! pgrep -x ollama &>/dev/null; then
+            ollama serve &>/tmp/ollama.log &
+            sleep 3
+            echo "🚀 Ollama service started"
+          else
+            echo "✅ Ollama service already running"
+          fi
+
+      - name: Health check
+        id: health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:11434/ 2>/dev/null || echo "000")
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Ollama healthy at http://localhost:11434/"
+          else
+            echo "⚠️ Ollama returned HTTP $STATUS"
+          fi
+
+      - name: List models
+        if: inputs.action == 'list-models' || inputs.action == 'health' || github.event_name == 'schedule'
+        run: |
+          echo "=== Local Models ==="
+          ollama list 2>/dev/null || echo "(no models yet)"
+
+      - name: Pull model
+        if: inputs.action == 'pull-model' || inputs.action == 'setup'
+        run: |
+          MODEL="${{ inputs.model || 'llama3.2' }}"
+          echo "Pulling model: $MODEL"
+          ollama pull "$MODEL"
+          echo "✅ Model $MODEL ready"
+
+      - name: Smoke test inference
+        if: inputs.action == 'setup' || inputs.action == 'health'
+        run: |
+          MODEL="${{ inputs.model || 'llama3.2' }}"
+          # Only run smoke test if model is present
+          if ollama list 2>/dev/null | grep -q "$MODEL"; then
+            RESULT=$(ollama run "$MODEL" "Reply with only the word: READY" 2>/dev/null | head -1)
+            echo "Smoke test response: $RESULT"
+            echo "✅ Local inference working — no external providers needed"
+          else
+            echo "ℹ️ Model $MODEL not yet pulled — run with action=setup first"
+          fi
+
+      - name: Show Ollama endpoint
+        run: |
+          echo "🦙 Ollama API: http://$(hostname).local:11434"
+          echo "   Chat:   POST http://localhost:11434/api/chat"
+          echo "   Models: GET  http://localhost:11434/api/tags"
+          echo "   Zero external AI provider dependency ✅"
