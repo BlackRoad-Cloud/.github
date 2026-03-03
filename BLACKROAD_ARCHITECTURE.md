@@ -72,19 +72,43 @@ Plus dev machines (Mac = "cecilia", iPhone = "arcadia") and edge devices (ESP32s
 
 ---
 
+## Local AI — Ollama (No External Provider Required)
+
+All language inference runs **locally** via [Ollama](https://ollama.com) on the Pi fleet.
+No OpenAI. No Anthropic. No Claude. No API keys. No bills.
+
+| Setting | Value |
+|---------|-------|
+| Endpoint | `http://octavia.local:11434` |
+| Default model | `llama3.2` |
+| Install | `curl -fsSL https://ollama.com/install.sh \| sh` |
+| Pull model | `ollama pull llama3.2` |
+| Chat API | `POST /api/chat` (OpenAI-compatible) |
+
+To call Ollama from any workflow step:
+```bash
+ollama run llama3.2 "your prompt here"
+# or via HTTP:
+curl http://localhost:11434/api/generate \
+  -d '{"model":"llama3.2","prompt":"your prompt","stream":false}'
+```
+
+---
+
 ## The Routing Pattern
 
 ```
 [User Request] → [Operator] → [Route to Right Tool] → [Answer]
                      │
                      ├── Physics question? → NumPy/SciPy
-                     ├── Language task? → Claude/GPT API
+                     ├── Language task?   → Ollama (local, llama3.2)
                      ├── Customer lookup? → Salesforce API
-                     ├── Legal question? → Legal database
-                     └── Fast inference? → Hailo-8 local
+                     ├── Legal question?  → Legal database
+                     └── Fast inference?  → Hailo-8 + Ollama local
 ```
 
 The agent doesn't need to be smart. It needs to know **who to call.**
+And now it calls **local** — zero external provider dependency.
 
 ---
 
