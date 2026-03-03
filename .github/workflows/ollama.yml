@@ -1,0 +1,240 @@
+# ============================================================
+# BlackRoad Ollama — Local-First AI
+# Manages Ollama installation, models, and inference on the
+# Pi fleet so the stack never depends on external providers.
+# ============================================================
+name: "🦙 Ollama — Local AI"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - health-check
+          - install
+          - pull-models
+          - list-models
+          - serve
+          - update
+      node:
+        description: 'Target node (all / octavia / aria / lucidia)'
+        default: 'all'
+        required: false
+      model:
+        description: 'Model to pull (e.g. llama3.2:3b) — used with pull-models'
+        default: ''
+        required: false
+  schedule:
+    - cron: '0 */6 * * *'  # Health-check every 6 hours
+  push:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/ollama.yml'
+
+env:
+  OLLAMA_HOST: http://localhost:11434
+  # Primary models kept ready on the fleet
+  OLLAMA_MODELS: "llama3.2:3b qwen2.5:3b phi3:mini nomic-embed-text"
+
+jobs:
+  # ----------------------------------------------------------
+  # Health-check: verify Ollama is running on every Pi node
+  # ----------------------------------------------------------
+  health-check:
+    name: "🏥 Ollama Health Check"
+    runs-on: [self-hosted, blackroad-fleet]
+    permissions: {}
+    if: |
+      github.event_name == 'schedule' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'health-check')
+
+    steps:
+      - name: Check Ollama service
+        run: |
+          echo "=== Ollama Health $(date -u) ==="
+          if curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1; then
+            echo "✅ Ollama API responding at $OLLAMA_HOST"
+          else
+            echo "⚠️  Ollama not responding — attempting start..."
+            ollama serve &>/dev/null &
+            sleep 5
+            curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1 && \
+              echo "✅ Ollama started successfully" || \
+              echo "❌ Ollama failed to start — run install action"
+          fi
+
+      - name: List loaded models
+        run: |
+          echo "=== Loaded Models ==="
+          ollama list 2>/dev/null || echo "⚠️  ollama CLI not in PATH — install first"
+
+      - name: Verify inference endpoint
+        run: |
+          echo "=== Quick Inference Test ==="
+          # Use the first available model rather than hardcoding one
+          FIRST_MODEL=$(ollama list 2>/dev/null | tail -n +2 | awk 'NR==1{print $1}')
+          if [ -z "$FIRST_MODEL" ]; then
+            echo "⚠️  No models loaded yet — skipping inference test (run pull-models first)"
+          else
+            echo "→ Testing with model: $FIRST_MODEL"
+            curl -sf -X POST "$OLLAMA_HOST/api/generate" \
+              -H "Content-Type: application/json" \
+              -d "{\"model\":\"$FIRST_MODEL\",\"prompt\":\"ping\",\"stream\":false}" \
+              --max-time 30 \
+              -o /tmp/ollama_test.json 2>/dev/null && \
+              python3 -c "import json; d=json.load(open('/tmp/ollama_test.json')); print('✅ Inference OK — response:', d.get('response','')[:80])" || \
+              echo "⚠️  Inference test failed — check Ollama logs"
+          fi
+
+  # ----------------------------------------------------------
+  # Install: install Ollama binary if missing
+  # ----------------------------------------------------------
+  install:
+    name: "📥 Install Ollama"
+    runs-on: [self-hosted, blackroad-fleet]
+    permissions: {}
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'install'
+
+    steps:
+      - name: Install or upgrade Ollama
+        run: |
+          if command -v ollama &>/dev/null; then
+            CURRENT=$(ollama --version 2>/dev/null | awk '{print $NF}')
+            echo "ℹ️  Ollama already installed: $CURRENT"
+          fi
+          echo "📥 Installing/upgrading Ollama..."
+          curl -fsSL https://ollama.com/install.sh | sh
+          echo "✅ Ollama installed: $(ollama --version 2>/dev/null)"
+
+      - name: Enable systemd service (Linux)
+        run: |
+          if command -v systemctl &>/dev/null; then
+            sudo systemctl enable ollama 2>/dev/null || true
+            sudo systemctl start  ollama 2>/dev/null || true
+            sleep 3
+            systemctl is-active ollama 2>/dev/null && \
+              echo "✅ ollama.service active" || \
+              echo "⚠️  systemd service not active — starting manually"
+          fi
+
+      - name: Start Ollama (fallback)
+        run: |
+          curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1 && \
+            echo "✅ Ollama API reachable" || \
+            (ollama serve &>/dev/null & sleep 5 && \
+             curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1 && \
+             echo "✅ Ollama started" || echo "❌ Ollama failed to start")
+
+  # ----------------------------------------------------------
+  # Pull models: ensure required models are available locally
+  # ----------------------------------------------------------
+  pull-models:
+    name: "🤖 Pull Ollama Models"
+    runs-on: [self-hosted, blackroad-fleet]
+    permissions: {}
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'pull-models'
+
+    steps:
+      - name: Ensure Ollama is running
+        run: |
+          curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1 || \
+            (ollama serve &>/dev/null & sleep 5)
+
+      - name: Pull specified model
+        if: github.event.inputs.model != ''
+        run: |
+          echo "📦 Pulling ${{ github.event.inputs.model }}..."
+          ollama pull "${{ github.event.inputs.model }}"
+          echo "✅ ${{ github.event.inputs.model }} ready"
+
+      - name: Pull all default models
+        if: github.event.inputs.model == ''
+        run: |
+          echo "📦 Pulling default BlackRoad model set..."
+          for MODEL in $OLLAMA_MODELS; do
+            echo "→ Pulling $MODEL..."
+            ollama pull "$MODEL" && echo "  ✅ $MODEL ready" || echo "  ⚠️  $MODEL pull failed"
+          done
+
+      - name: Show available models
+        run: ollama list
+
+  # ----------------------------------------------------------
+  # List models
+  # ----------------------------------------------------------
+  list-models:
+    name: "📋 List Ollama Models"
+    runs-on: [self-hosted, blackroad-fleet]
+    permissions: {}
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'list-models'
+
+    steps:
+      - name: List all local models
+        run: |
+          echo "=== Models on $(hostname) ==="
+          ollama list
+
+  # ----------------------------------------------------------
+  # Serve: start the Ollama API server
+  # ----------------------------------------------------------
+  serve:
+    name: "🚀 Start Ollama Server"
+    runs-on: [self-hosted, blackroad-fleet]
+    permissions: {}
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'serve'
+
+    steps:
+      - name: Start Ollama API server
+        run: |
+          if curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1; then
+            echo "✅ Ollama already running at $OLLAMA_HOST"
+          else
+            echo "🚀 Starting Ollama server..."
+            # Prefer systemd when available for proper lifecycle management
+            if command -v systemctl &>/dev/null && systemctl list-unit-files ollama.service &>/dev/null 2>&1; then
+              sudo systemctl start ollama
+              sleep 3
+              systemctl is-active ollama && echo "✅ ollama.service started" || echo "❌ systemd start failed"
+            else
+              nohup ollama serve > /tmp/ollama.log 2>&1 &
+              sleep 5
+              curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1 && \
+                echo "✅ Ollama serving at $OLLAMA_HOST" || \
+                (echo "❌ Start failed. Last log lines:"; tail -20 /tmp/ollama.log)
+            fi
+          fi
+
+  # ----------------------------------------------------------
+  # Update: pull latest versions of all loaded models
+  # ----------------------------------------------------------
+  update:
+    name: "🔄 Update Ollama Models"
+    runs-on: [self-hosted, blackroad-fleet]
+    permissions: {}
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'update'
+
+    steps:
+      - name: Ensure Ollama is running
+        run: |
+          curl -sf "$OLLAMA_HOST/" > /dev/null 2>&1 || \
+            (ollama serve &>/dev/null & sleep 5)
+
+      - name: Update all loaded models
+        run: |
+          set -euo pipefail
+          echo "🔄 Updating all Ollama models..."
+          FAILED=0
+          while IFS= read -r MODEL; do
+            [ -z "$MODEL" ] && continue
+            echo "→ Updating $MODEL..."
+            ollama pull "$MODEL" && echo "  ✅ $MODEL updated" || { echo "  ⚠️  $MODEL update failed"; FAILED=$((FAILED+1)); }
+          done < <(ollama list 2>/dev/null | tail -n +2 | awk '{print $1}')
+          if [ "$FAILED" -gt 0 ]; then
+            echo "⚠️  $FAILED model(s) failed to update"
+          else
+            echo "✅ All models up to date"
+          fi

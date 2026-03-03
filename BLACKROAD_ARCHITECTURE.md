@@ -77,14 +77,40 @@ Plus dev machines (Mac = "cecilia", iPhone = "arcadia") and edge devices (ESP32s
 ```
 [User Request] → [Operator] → [Route to Right Tool] → [Answer]
                      │
+                     ├── Language task? → Ollama (local, $0, no provider)
                      ├── Physics question? → NumPy/SciPy
-                     ├── Language task? → Claude/GPT API
                      ├── Customer lookup? → Salesforce API
                      ├── Legal question? → Legal database
-                     └── Fast inference? → Hailo-8 local
+                     └── Fast inference? → Hailo-8 + Ollama local
 ```
 
+**Local-first:** Ollama runs on the Pi fleet — no external AI provider required.
 The agent doesn't need to be smart. It needs to know **who to call.**
+
+---
+
+## Ollama — Local AI Stack
+
+Ollama runs on the Pi fleet and serves all language model requests locally.
+
+| Node | URL | Models |
+|------|-----|--------|
+| **octavia** (primary) | `http://octavia.local:11434` | llama3.2:3b, qwen2.5:3b, phi3:mini, nomic-embed-text |
+| **aria** (fallback) | `http://aria.local:11434` | llama3.2:3b, nomic-embed-text |
+
+```
+ollama pull llama3.2:3b      # general chat / code
+ollama pull qwen2.5:3b       # reasoning + code
+ollama pull phi3:mini        # lightweight, fast
+ollama pull nomic-embed-text # embeddings / RAG
+```
+
+Use the **🦙 Ollama — Local AI** workflow (`.github/workflows/ollama.yml`) to:
+- `install` — install or upgrade Ollama on the fleet
+- `pull-models` — download/update models
+- `health-check` — verify Ollama is running and responsive
+- `serve` — start the Ollama API server
+- `update` — pull latest versions of all loaded models
 
 ---
 
