@@ -1,0 +1,99 @@
+name: GreenLight - Deploy on Success
+
+on:
+  push:
+    branches: [ $default-branch ]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          echo "Running test suite..."
+          # Add your test commands (e.g., npm test, pytest, go test)
+
+      - name: Test results
+        run: |
+          echo "✅ All tests passed!"
+
+  build:
+    name: 🔨 Build
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build application
+        run: |
+          echo "Building application..."
+          # Add build commands (e.g., npm run build, docker build, go build)
+
+      - name: Build artifacts
+        run: |
+          echo "✅ Build completed successfully!"
+
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to environment
+        run: |
+          echo "🚀 Deploying application..."
+          # Add deployment commands (e.g., kubectl apply, terraform apply, deploy script)
+
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment health..."
+          # Add health checks and verification
+
+      - name: Mark as GreenLight
+        run: |
+          echo "🟢 GREENLIGHT: Deployment successful!"
+          echo "Status: Live and healthy"
+
+  notify:
+    name: 📢 Notify Success
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    
+    steps:
+      - name: Success notification
+        run: |
+          echo "✅ GreenLight workflow completed successfully!"
+          echo "🎉 Deployment live and verified"
+          # Add notification logic (e.g., Slack, email, GitHub comment)
+
+  rollback:
+    name: 🔄 Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+    
+    steps:
+      - name: Execute rollback
+        run: |
+          echo "🔴 Deployment failed. Initiating rollback..."
+          # Add rollback logic
+
+      - name: Failure notification
+        run: |
+          echo "⚠️  Deployment failed. Rollback initiated."
+          # Add failure notification

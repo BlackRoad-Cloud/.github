@@ -1,0 +1,17 @@
+{
+  "name": "RedLight - Block on Failure",
+  "description": "Quality gate workflow that blocks merging and deployment when critical checks fail. Includes tests, security scans, linting, and code coverage validation.",
+  "iconName": "octicon stop",
+  "categories": [
+    "Code Review",
+    "Continuous Integration",
+    "Testing"
+  ],
+  "filePatterns": [
+    ".*\\.js$",
+    ".*\\.py$",
+    ".*\\.go$",
+    ".*\\.java$",
+    ".*\\.ts$"
+  ]
+}
