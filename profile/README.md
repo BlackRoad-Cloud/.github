@@ -1,25 +1,41 @@
+<div align="center">
+
+<img src="https://images.blackroad.io/pixel-art/road-logo.png" alt="BlackRoad OS" width="80" />
+
 # BlackRoad Cloud
 
-**A division of [BlackRoad OS, Inc.](https://github.com/BlackRoad-OS-Inc) — Proprietary Software**
+**Sovereign cloud infrastructure -- Kubernetes, service mesh, and container orchestration.**
+
+[![BlackRoad OS](https://img.shields.io/badge/BlackRoad_OS-Pave_Tomorrow-FF2255?style=for-the-badge&labelColor=000000)](https://blackroad.io)
+
+</div>
 
 ---
 
 ## About
 
-BlackRoad Cloud is the infrastructure division of BlackRoad OS. BlackRoad Cloud manages the compute, networking, and orchestration layers — Kubernetes operators, Terraform modules, service mesh, container registries, and load balancing. All self-hosted, all sovereign.
+BlackRoad Cloud replaces AWS, GCP, and Azure with infrastructure you actually own. We build Kubernetes operators, Terraform modules, service meshes, and container registries that run on bare metal and edge nodes. Cloud computing without the cloud vendor.
 
-All repositories in this organization are proprietary to BlackRoad OS, Inc. Source code is publicly visible for transparency. Commercial use, forking, and redistribution are prohibited.
+## Repositories
 
-## Parent Organization
+| Repository | Description |
+|------------|-------------|
+| [k8s-operators](https://github.com/BlackRoad-Cloud/k8s-operators) | Custom Kubernetes operators for BlackRoad workloads |
+| [blackroad-terraform-modules](https://github.com/BlackRoad-Cloud/blackroad-terraform-modules) | Infrastructure-as-code modules for sovereign deployment |
+| [cloud-gateway](https://github.com/BlackRoad-Cloud/cloud-gateway) | API gateway and traffic management layer |
+| [blackroad-service-mesh](https://github.com/BlackRoad-Cloud/blackroad-service-mesh) | Service discovery, routing, and observability mesh |
+| [blackroad-container-registry](https://github.com/BlackRoad-Cloud/blackroad-container-registry) | Self-hosted OCI container image registry |
 
-This division operates under [BlackRoad-OS-Inc](https://github.com/BlackRoad-OS-Inc), the corporate root of the BlackRoad ecosystem. See the parent org for the full technology stack, product catalog, and organizational structure.
+## Part of BlackRoad OS
 
-## License
+This organization is part of [BlackRoad OS, Inc.](https://blackroad.io) -- sovereign AI infrastructure built by Alexa Amundson.
 
-Proprietary — BlackRoad OS, Inc. See individual repositories for license terms.
+- 16 organizations | 275+ repositories | 20 domains
+- 7 nodes | 41.8 TOPS | 60 AI agents
+- Self-hosted everything. Your AI. Your hardware. Your rules.
 
 ---
 
-**BlackRoad OS — Pave Tomorrow.**
+**BlackRoad OS -- Pave Tomorrow.**
 
-*Copyright 2024-2026 BlackRoad OS, Inc. All Rights Reserved.*
+[blackroad.io](https://blackroad.io) | [git.blackroad.io](https://git.blackroad.io)
